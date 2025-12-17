@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from statistics import mean
 from models.agent import (
     AgentState,
@@ -72,7 +72,7 @@ class AgentStateMachine:
             AgentEvent(
                 state=new_state,
                 message=message,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 metadata=None,
             )
         )
@@ -153,7 +153,7 @@ class AgentStateMachine:
                 "The product operates under a skill-based gaming model",
                 "Publicly available data reflects current market conditions",
             ],
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             created_by="agent",
         )
 
@@ -176,7 +176,7 @@ class AgentStateMachine:
                 data=market_data,
                 error_message=None,
                 source="Sensor Tower (mocked)",
-                collected_at=datetime.utcnow(),
+                collected_at=datetime.now(timezone.utc),
             )
         )
 
@@ -188,7 +188,7 @@ class AgentStateMachine:
                 data=sentiment_data,
                 error_message=None,
                 source="TikTok sentiment (mocked)",
-                collected_at=datetime.utcnow(),
+                collected_at=datetime.now(timezone.utc),
             )
         )
 
@@ -200,7 +200,7 @@ class AgentStateMachine:
                 data=regulatory_data,
                 error_message=None,
                 source="Regulatory DB (mocked)",
-                collected_at=datetime.utcnow(),
+                collected_at=datetime.now(timezone.utc),
             )
         )
 
@@ -267,7 +267,7 @@ class AgentStateMachine:
 
         return ResearchReport(
             sections=sections,
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone.utc),
         )
 
     # Simulate human review decision based on validation confidence and issues.
@@ -295,7 +295,7 @@ class AgentStateMachine:
                 if approved
                 else "Rejected due to low confidence or critical risks"
             ),
-            decided_at=datetime.utcnow(),
+            decided_at=datetime.now(timezone.utc),
         )
 
     # Validate research report for completeness, confidence, and data quality.
@@ -316,7 +316,7 @@ class AgentStateMachine:
                     )
                 ],
                 overall_confidence=0.0,
-                validated_at=datetime.utcnow(),
+                validated_at=datetime.now(timezone.utc),
             )
 
         section_map = {section.domain: section for section in report.sections}
@@ -336,7 +336,7 @@ class AgentStateMachine:
                 status=ValidationStatus.RETRY,
                 issues=issues,
                 overall_confidence=0.0,
-                validated_at=datetime.utcnow(),
+                validated_at=datetime.now(timezone.utc),
             )
 
         section_confidences = []
@@ -365,7 +365,7 @@ class AgentStateMachine:
                 status=ValidationStatus.HUMAN_REVIEW,
                 issues=issues,
                 overall_confidence=overall_confidence,
-                validated_at=datetime.utcnow(),
+                validated_at=datetime.now(timezone.utc),
             )
 
         if overall_confidence < plan.minimum_overall_confidence:
@@ -373,14 +373,14 @@ class AgentStateMachine:
                 status=ValidationStatus.RETRY,
                 issues=issues,
                 overall_confidence=overall_confidence,
-                validated_at=datetime.utcnow(),
+                validated_at=datetime.now(timezone.utc),
             )
 
         return ValidationResult(
             status=ValidationStatus.PASS,
             issues=issues,
             overall_confidence=overall_confidence,
-            validated_at=datetime.utcnow(),
+            validated_at=datetime.now(timezone.utc),
         )
 
     # Synthesize validated research into a complete market requirements document.
@@ -504,7 +504,7 @@ class AgentStateMachine:
         )
 
         meta = MRDMeta(
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(timezone.utc),
             agent_version="0.1.0",
             input_prompt=self.context.user_input,
             target_regions=["UK", "EU"],
