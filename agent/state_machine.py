@@ -41,11 +41,14 @@ from tools.external_tools import (
     check_regulatory_compliance,
 )
 
+# State machine orchestrating the agent workflow from planning to MRD generation.
 class AgentStateMachine:
+    # Initialize the state machine with context and configuration.
     def __init__(self, context: AgentContext, config: AgentConfig):
         self.context = context
         self.config = config
 
+    # Execute the state machine loop until completion or failure.
     def run(self):
         while self.context.state not in {AgentState.COMPLETED, AgentState.FAILED}:
             if self.context.state == AgentState.PLANNING:
@@ -63,6 +66,7 @@ class AgentStateMachine:
             elif self.context.state == AgentState.SYNTHESIS:
                 self._handle_synthesis()
 
+    # Transition to a new state and log the event.
     def _transition(self, new_state: AgentState, message: str):
         self.context.events.append(
             AgentEvent(
@@ -74,11 +78,13 @@ class AgentStateMachine:
         )
         self.context.state = new_state
 
+    # Handle the planning state by creating a research plan.
     def _handle_planning(self):
         plan = self._create_research_plan()
         self.context.research_plan = plan
         self._transition(AgentState.RESEARCH, "Research plan created")
 
+    # Handle the research state by executing research and checking retry limits.
     def _handle_research(self):
         if self.context.research_retry_count >= self.config.max_research_retries:
             self._transition(AgentState.FAILED, "Exceeded maximum research retries")
@@ -89,6 +95,7 @@ class AgentStateMachine:
         self.context.research_retry_count += 1
         self._transition(AgentState.VALIDATION, "Research completed")
 
+    # Handle the validation state by checking research quality and completeness.
     def _handle_validation(self):
         result = self._validate_research()
         self.context.validation_result = result
@@ -105,6 +112,7 @@ class AgentStateMachine:
         else:
             self._transition(AgentState.FAILED, "Validation failed")
 
+    # Handle the human review state by getting approval or rejection.
     def _handle_human_review(self):
         decision = self._get_human_decision()
         self.context.human_review = decision
@@ -115,11 +123,13 @@ class AgentStateMachine:
         else:
             self._transition(AgentState.FAILED, "Human review rejected")
 
+    # Handle the synthesis state by generating the final MRD.
     def _handle_synthesis(self):
         mrd = self._synthesize_mrd()
         self.context.final_mrd = mrd
         self._transition(AgentState.COMPLETED, "MRD synthesis completed")
 
+    # Create a research plan based on user input and configuration.
     def _create_research_plan(self) -> ResearchPlan:
         return ResearchPlan(
             objective=self.context.user_input,
@@ -147,6 +157,7 @@ class AgentStateMachine:
             created_by="agent",
         )
 
+    # Execute research by calling tools and gathering findings across domains.
     def _run_research(self) -> ResearchReport:
         plan = self.context.research_plan
 
@@ -203,7 +214,7 @@ class AgentStateMachine:
                     supporting_data=[tool_results[0]],
                 )
             ],
-            overall_confidence=0.8,
+            overall_confidence=0.7,
         )
 
         audience_section = ResearchSection(
@@ -229,7 +240,7 @@ class AgentStateMachine:
                     supporting_data=[tool_results[0]],
                 )
             ],
-            overall_confidence=0.65,
+            overall_confidence=0.7,
         )
 
         regulation_section = ResearchSection(
@@ -242,7 +253,7 @@ class AgentStateMachine:
                     supporting_data=[tool_results[2]],
                 )
             ],
-            overall_confidence=0.6,
+            overall_confidence=0.65,
         )
 
         sections.extend(
@@ -259,6 +270,7 @@ class AgentStateMachine:
             generated_at=datetime.utcnow(),
         )
 
+    # Simulate human review decision based on validation confidence and issues.
     def _get_human_decision(self) -> HumanReviewDecision:
         validation = self.context.validation_result
 
@@ -286,6 +298,7 @@ class AgentStateMachine:
             decided_at=datetime.utcnow(),
         )
 
+    # Validate research report for completeness, confidence, and data quality.
     def _validate_research(self) -> ValidationResult:
         issues = []
 
@@ -370,6 +383,7 @@ class AgentStateMachine:
             validated_at=datetime.utcnow(),
         )
 
+    # Synthesize validated research into a complete market requirements document.
     def _synthesize_mrd(self) -> MarketRequirementsDocument:
         report = self.context.research_report
         validation = self.context.validation_result

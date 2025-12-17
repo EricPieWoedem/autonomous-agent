@@ -1,13 +1,5 @@
 ## Orchestration Design
 
-### Overview
-
-This system is designed as a deterministic, state-driven autonomous agent whose responsibility is to transform a high-level product intent into a validated Market Requirements Document (MRD).
-
-Rather than relying on fragile prompt chaining or free-form reasoning, the agent uses an explicit state machine orchestration pattern. Each state has clearly defined inputs, outputs, validation rules, and failure conditions. This ensures reliability, auditability, and extensibility.
-
-The Large Language Model (LLM) is treated as an unreliable component whose outputs are always validated against strict data schemas before being accepted into the system.
-
 ### Why a State Machine
 
 The orchestration pattern must answer three core questions:

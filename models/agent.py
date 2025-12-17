@@ -7,6 +7,7 @@ from models.research import ResearchReport
 from models.validation import ValidationResult
 from models.mrd import MarketRequirementsDocument
 
+# Current state of the agent in its workflow lifecycle.
 class AgentState(str, Enum):
     PLANNING = "planning"
     RESEARCH = "research"
@@ -16,12 +17,14 @@ class AgentState(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
 
+# Decision made by a human reviewer approving or rejecting research.
 class HumanReviewDecision(BaseModel):
     approved: bool
     reviewer: str
     notes: str
     decided_at: datetime
 
+# Configuration settings for agent behavior and thresholds.
 class AgentConfig(BaseModel):
     max_research_retries: int
     max_tool_retries: int
@@ -29,6 +32,7 @@ class AgentConfig(BaseModel):
     default_min_overall_confidence: float
 
 
+# An event recording a state transition in the agent workflow.
 class AgentEvent(BaseModel):
     state: AgentState
     message: str
@@ -36,6 +40,7 @@ class AgentEvent(BaseModel):
     metadata: Optional[dict]
 
 
+# Complete runtime context holding all agent state and workflow data.
 class AgentContext(BaseModel):
     user_input: str
     state: AgentState

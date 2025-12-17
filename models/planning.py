@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from models.research import ResearchDomain, ToolName
 
 
+# Plan defining research scope, tools, and quality thresholds.
 class ResearchPlan(BaseModel):
     objective: str
     primary_app: str
