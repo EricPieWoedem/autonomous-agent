@@ -5,7 +5,7 @@ def search_sensor_tower(app_name: str):
     }
 
 
-def analyze_sentiment(source: str):
+def analyze_sentiment(social_source: str):
     return {
         "sentiment": "positive",
         "themes": ["competition", "fast payouts"],
